@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
+#include "helpers.h"
 
 #include <armadillo>
 using namespace arma;
@@ -15,15 +16,23 @@ int main(int argc, char** argv)
     double sigma = 0.40;
     double r = 0.10;
     double T = 1.0;
+    double K = 50.0;
+    vec strike(numAverages);
+    strike.fill(K);
+    vec zeroVec = zeros<vec>(numAverages);
 
     double dt = T / static_cast<double>(n);
     double u = std::exp(sigma * std::sqrt(dt));
     double d = 1.0 / u;
     double p = (std::exp(r*dt) - d) / (u-d);
+    double q = 1-p;
 
     mat S(n+1, n+1);
     field<vec> av(n+1, n+1);
+    field<vec> interpolatedAV(n+1, n+1);
+    field<vec> optionPrice(n+1, n+1);
     av.fill(zeros<vec>(numAverages));
+    optionPrice.fill(zeros<vec>(numAverages));
 
     // Build the binomial tree for the stock
 	for (j = 0; j <= n; j++) {
@@ -52,8 +61,39 @@ int main(int argc, char** argv)
         }
 	}
 
-    cout << S(2,4) << endl;
-    cout << av(2,4) << endl;
+	// Compute terminal payoffs
+	for (i = 0; i <= n; i++) {
+        optionPrice(i,n) = max(av(i,n) - strike, zeroVec);
+	}
+
+//    for (j = 0; j <= n; j++) {
+//        for (i = 0; i <= j; j++) {
+//            vec currentS(numAverages);
+//            currentS.fill(S(i,j));
+//            vec Fu = (j * av(i,j-1) + currentS) / (j + 1);
+//            currentS.fill(S(i+1,j));
+//            vec Fd = (j * av(i,j-1) + currentS) / (j + 1);
+//
+//            vec interpOption_u, interpOption_d;
+//            interpolatePrices(av(i,j+1), Fu, optionPrice(i,j+1), interpOption_u);
+//            interpolatePrices(av(i+1,j+1), Fu, optionPrice(i+1,j+1), interpOption_d);
+//
+//            optionPrice(i,j) = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
+//        }
+//    }
+    i = 2;
+    j = 4;
+    cout << av(i,j) << endl;
+    vec currentS(numAverages);
+    currentS.fill(S(i,j));
+    vec Fu = (j * av(i,j-1) + currentS) / (j + 1);
+    currentS.fill(S(i+1,j));
+    vec Fd = (j * av(i,j-1) + currentS) / (j + 1);
+
+    cout << Fu << endl;
+    cout << Fd << endl;
+
+    //cout << optionPrice(0,0) << endl;
 
     return 0;
 }
