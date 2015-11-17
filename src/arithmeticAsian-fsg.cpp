@@ -23,9 +23,9 @@ int main(int argc, char** argv)
 
     double dt = T / static_cast<double>(n);
     double u = std::exp(sigma * std::sqrt(dt));
-    double d = 1.0 / u;
+    double d = std::exp(-sigma * std::sqrt(dt));
     double p = (std::exp(r*dt) - d) / (u-d);
-    double q = 1-p;
+    double q = 1.0 - p;
 
     mat S(n+1, n+1);
     field<vec> av(n+1, n+1);
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
         }
 	}
 
-    // Build the binomial tree for averages
+	// Shoot the averages
 	for (j = 0; j <= n; j++) {
         for (i = 0; i <= j; i++) {
             double first_max = (1- pow(u, j - i + 1)) / (1-u);
@@ -66,34 +66,23 @@ int main(int argc, char** argv)
         optionPrice(i,n) = max(av(i,n) - strike, zeroVec);
 	}
 
-//    for (j = 0; j <= n; j++) {
-//        for (i = 0; i <= j; j++) {
-//            vec currentS(numAverages);
-//            currentS.fill(S(i,j));
-//            vec Fu = (j * av(i,j-1) + currentS) / (j + 1);
-//            currentS.fill(S(i+1,j));
-//            vec Fd = (j * av(i,j-1) + currentS) / (j + 1);
-//
-//            vec interpOption_u, interpOption_d;
-//            interpolatePrices(av(i,j+1), Fu, optionPrice(i,j+1), interpOption_u);
-//            interpolatePrices(av(i+1,j+1), Fu, optionPrice(i+1,j+1), interpOption_d);
-//
-//            optionPrice(i,j) = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
-//        }
-//    }
-    i = 2;
-    j = 4;
-    cout << av(i,j) << endl;
-    vec currentS(numAverages);
-    currentS.fill(S(i,j));
-    vec Fu = (j * av(i,j-1) + currentS) / (j + 1);
-    currentS.fill(S(i+1,j));
-    vec Fd = (j * av(i,j-1) + currentS) / (j + 1);
+    // Backward recursion
+    for (j = n-1; j >= 0; j--) {
+        for (i = 0; i <= j; i++) {
+            vec currentS(numAverages);
+            currentS.fill(S(i,j));
+            vec Fu = ((j+1) * av(i,j) + u * currentS) / (j + 2);
+            vec Fd = ((j+1) * av(i,j) + d * currentS) / (j + 2);
 
-    cout << Fu << endl;
-    cout << Fd << endl;
+            vec interpOption_u(numAverages), interpOption_d(numAverages);
+            interpolatePrices(av(i,j+1), optionPrice(i,j+1), Fu, interpOption_u);
+            interpolatePrices(av(i+1,j+1), optionPrice(i+1,j+1), Fd, interpOption_d);
 
-    //cout << optionPrice(0,0) << endl;
+            optionPrice(i,j) = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
+        }
+    }
+
+    cout << "Option price: " << optionPrice(0,0)(0) << endl;
 
     return 0;
 }

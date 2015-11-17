@@ -41,7 +41,7 @@ heston-mc: $(OBJECTS)
 #
 # Dependencies
 #
-arithmeticAsian-fsg.o:
+arithmeticAsian-fsg.o: helpers.h
 
 
 clean:
