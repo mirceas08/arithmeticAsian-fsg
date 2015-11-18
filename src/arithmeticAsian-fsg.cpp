@@ -10,8 +10,8 @@ int main(int argc, char** argv)
 {
     int i, j;
 
-    int n = 20;
-    int numAverages = 4;
+    int n = 600;
+    int numAverages = 1000;
     double S0 = 50.0;
     double sigma = 0.40;
     double r = 0.10;
