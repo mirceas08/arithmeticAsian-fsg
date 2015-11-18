@@ -18,14 +18,14 @@ LAPACK_LIB		= /usr/lib/lapack
 
 CC				= g++
 DEBUG			= -DARMA_NO_DEBUG -DNDEBUG
-PROG            = arithmeticAsian-fsg
-OBJECTS			= arithmeticAsian-fsg.o
+PROG            = arithmeticAverage-fsg
+OBJECTS			= arithmeticAverage-fsg.o
 FILES			= 
 INCLUDES        = -I $(ARMADILLO_INC)
 LIBS            = -L $(OPENBLAS_LIB) -lopenblas -L $(LAPACK_LIB) -llapack
 CFLAGS        	= -O3 -std=c++11 -fopenmp -march=native $(DEBUG)
 
-heston-mc: $(OBJECTS)
+arithmeticAverage-fsg: $(OBJECTS)
 	$(CC) -o $(PROG) $(OBJECTS) $(INCLUDES) $(LIBS) $(CFLAGS)
 
 
@@ -41,8 +41,8 @@ heston-mc: $(OBJECTS)
 #
 # Dependencies
 #
-arithmeticAsian-fsg.o: helpers.h
+arithmeticAverage-fsg.o: helpers.h
 
 
 clean:
-	\rm *.o *~ arithmeticAsian-fsg
+	\rm *.o *~ arithmeticAverage-fsg
