@@ -1,6 +1,6 @@
------------------- parameters -------------------------
-nsteps 600
-numAverages 1200
+-------------- required parameters --------------
+nsteps 60
+numAverages 100
 spot 50
 strike 50
 r 0.10
@@ -8,3 +8,5 @@ maturity 1
 sigma 0.40
 putCall call
 optionStyle E
+-------------- optional parameters --------------
+treeStrategy JR

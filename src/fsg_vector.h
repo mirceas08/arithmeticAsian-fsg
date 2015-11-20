@@ -29,7 +29,7 @@ double fsg_vector(std::string dataFile)
 
     std::ifstream fIN(dataFile.c_str());
     std::string line;
-    getline(fIN, line); // skip header
+    //getline(fIN, line); // skip header
 
     while (std::getline(fIN, line)) {
         std::stringstream stream(line);
@@ -58,19 +58,23 @@ double fsg_vector(std::string dataFile)
             optionStyle = value;
         else if (variable == "treeStrategy")
             treeStrategy = value;
-        else
-            break;
+//        else
+//            break;
     }
 
     transform(putCall.begin(), putCall.end(), putCall.begin(), ::toupper);
     transform(optionStyle.begin(), optionStyle.end(), optionStyle.begin(), ::toupper);
     double dt = T / static_cast<double>(n);
 
-    BinomialStrategy* latticeStrategy;
+    /* ------------------------ Set tree parameters according to the lattice strategy ------------------------ */
+
+    BinomialStrategy* latticeStrategy; // latticeStrategy allocated on the heap
     if (treeStrategy == "CRR")
         latticeStrategy = new CRR(sigma, r, dt);
     else if (treeStrategy == "JR")
         latticeStrategy = new JarrowRudd(sigma, r, dt);
+    else
+        latticeStrategy = new CRR(sigma, r, dt); // default strategy
 
 
     double u = latticeStrategy->u;
@@ -78,18 +82,12 @@ double fsg_vector(std::string dataFile)
     double p = (std::exp(latticeStrategy->r * latticeStrategy->dt) - latticeStrategy->d) / (latticeStrategy->u - latticeStrategy->d);
     double q = 1.0 - p;
 
-//    double dt = T / static_cast<double>(n);
-//    double u = std::exp(sigma * std::sqrt(dt));
-//    double d = std::exp(-sigma * std::sqrt(dt));
-//    double p = (std::exp(r*dt) - d) / (u-d);
-//    double q = 1.0 - p;
-
     /* ------------------------ Initialize some values ------------------------ */
     vec strike(numAverages);
     strike.fill(K);
     vec zeroVec = zeros<vec>(numAverages);
 
-    mat S(n+1, n+1);
+    sp_mat S(n+1, n+1);
     std::vector<field<vec> > av;
     std::vector<vec> optionPrice;
 
@@ -135,6 +133,7 @@ double fsg_vector(std::string dataFile)
 	/* ------------------------ Backward recursion ------------------------ */
     for (j = n-1; j >= 0; j--) {
         std::vector<vec> optionPrice_temp;
+
         for (i = 0; i <= j; i++) {
             vec currentS(numAverages);
             currentS.fill(S(i,j));
@@ -164,8 +163,8 @@ double fsg_vector(std::string dataFile)
         optionPrice = optionPrice_temp;
     }
 
-    delete latticeStrategy;
-    //return option price
-    return optionPrice[0].at(0);
+    delete latticeStrategy; // delete from the heap
+
+    return optionPrice[0].at(0); //return option price
 }
 
