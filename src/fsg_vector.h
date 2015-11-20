@@ -73,7 +73,7 @@ double fsg_vector(std::string dataFile)
 
     mat S(n+1, n+1);
     std::vector<field<vec> > av;
-    field<vec> optionPrice(n+1);
+    std::vector<vec> optionPrice;
 
     /* ------------------------ Build binomial tree for S ------------------------ */
 	for (j = 0; j <= n; j++) {
@@ -108,12 +108,15 @@ double fsg_vector(std::string dataFile)
 	}
 
 	/* ------------------------ Compute terminal payoffs ------------------------ */
+	vec temp_optionPrice(numAverages);
 	for (i = 0; i <= n; i++) {
-        optionPrice(i) = max(av[n].at(i) - strike, zeroVec);
+        temp_optionPrice = max(av[n].at(i) - strike, zeroVec);
+        optionPrice.push_back(temp_optionPrice);
 	}
 
 	/* ------------------------ Backward recursion ------------------------ */
     for (j = n-1; j >= 0; j--) {
+        std::vector<vec> optionPrice_temp;
         for (i = 0; i <= j; i++) {
             vec currentS(numAverages);
             currentS.fill(S(i,j));
@@ -121,27 +124,30 @@ double fsg_vector(std::string dataFile)
             vec Ad = ((j+1) * av[j].at(i) + d * currentS) / (j + 2);
 
             vec interpOption_u(numAverages), interpOption_d(numAverages);
-            interpolatePrices(av[j+1].at(i), optionPrice(i), Au, interpOption_u);
-            interpolatePrices(av[j+1].at(i+1), optionPrice(i+1), Ad, interpOption_d);
+            interpolatePrices(av[j+1].at(i), optionPrice[i], Au, interpOption_u);
+            interpolatePrices(av[j+1].at(i+1), optionPrice[i+1], Ad, interpOption_d);
 
+            vec temp_optionPrice(numAverages);
             if (optionStyle == "E") {
-                optionPrice(i) = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
+                temp_optionPrice = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
             }
             else if (optionStyle == "A") {
                 vec continuationValue = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
                 vec exerciseValue = max(av[j].at(i) - strike, zeroVec);
-                optionPrice(i) = max(continuationValue, exerciseValue);
+                temp_optionPrice = max(continuationValue, exerciseValue);
             }
             else {
                 cout << "optionStyle can be either E (european) or A (american)" << endl;
                 return -1;
             }
-
+            optionPrice_temp.push_back(temp_optionPrice);
         }
+
+        optionPrice = optionPrice_temp;
     }
 
 
     //return option price
-    return optionPrice(0).at(0);
+    return optionPrice[0].at(0);
 }
 
