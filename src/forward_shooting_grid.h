@@ -73,7 +73,7 @@ double forwardShootingGrid(std::string dataFile)
     double p = (std::exp(r*dt) - d) / (u-d);
     double q = 1.0 - p;
 
-    mat S(n+1, n+1);
+    sp_mat S(n+1, n+1);
     field<vec> av(n+1, n+1);
     field<vec> optionPrice(n+1);
 

@@ -4,7 +4,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+
 #include "helpers.h"
+#include "binomialStrategy.h"
 
 #include <armadillo>
 using namespace arma;
@@ -21,6 +23,7 @@ double fsg_vector(std::string dataFile)
     double T;
     double sigma;
     int numAverages;
+    std::string treeStrategy;
     std::string putCall;
     std::string optionStyle;
 
@@ -53,23 +56,38 @@ double fsg_vector(std::string dataFile)
             putCall = value;
         else if (variable == "optionStyle")
             optionStyle = value;
+        else if (variable == "treeStrategy")
+            treeStrategy = value;
         else
             break;
     }
 
     transform(putCall.begin(), putCall.end(), putCall.begin(), ::toupper);
     transform(optionStyle.begin(), optionStyle.end(), optionStyle.begin(), ::toupper);
+    double dt = T / static_cast<double>(n);
+
+    BinomialStrategy* latticeStrategy;
+    if (treeStrategy == "CRR")
+        latticeStrategy = new CRR(sigma, r, dt);
+    else if (treeStrategy == "JR")
+        latticeStrategy = new JarrowRudd(sigma, r, dt);
+
+
+    double u = latticeStrategy->u;
+    double d = latticeStrategy->d;
+    double p = (std::exp(latticeStrategy->r * latticeStrategy->dt) - latticeStrategy->d) / (latticeStrategy->u - latticeStrategy->d);
+    double q = 1.0 - p;
+
+//    double dt = T / static_cast<double>(n);
+//    double u = std::exp(sigma * std::sqrt(dt));
+//    double d = std::exp(-sigma * std::sqrt(dt));
+//    double p = (std::exp(r*dt) - d) / (u-d);
+//    double q = 1.0 - p;
 
     /* ------------------------ Initialize some values ------------------------ */
     vec strike(numAverages);
     strike.fill(K);
     vec zeroVec = zeros<vec>(numAverages);
-
-    double dt = T / static_cast<double>(n);
-    double u = std::exp(sigma * std::sqrt(dt));
-    double d = std::exp(-sigma * std::sqrt(dt));
-    double p = (std::exp(r*dt) - d) / (u-d);
-    double q = 1.0 - p;
 
     mat S(n+1, n+1);
     std::vector<field<vec> > av;
@@ -146,7 +164,7 @@ double fsg_vector(std::string dataFile)
         optionPrice = optionPrice_temp;
     }
 
-
+    delete latticeStrategy;
     //return option price
     return optionPrice[0].at(0);
 }

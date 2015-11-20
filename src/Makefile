@@ -19,7 +19,7 @@ LAPACK_LIB		= /usr/lib/lapack
 CC				= g++
 DEBUG			= -DARMA_NO_DEBUG -DNDEBUG
 PROG            = arithmeticAverage-fsg
-OBJECTS			= arithmeticAverage-fsg.o
+OBJECTS			= arithmeticAverage-fsg.o binomialStrategy.o
 FILES			= 
 INCLUDES        = -I $(ARMADILLO_INC)
 LIBS            = -L $(OPENBLAS_LIB) -lopenblas -L $(LAPACK_LIB) -llapack
@@ -42,6 +42,8 @@ arithmeticAverage-fsg: $(OBJECTS)
 # Dependencies
 #
 arithmeticAverage-fsg.o: helpers.h forward_shooting_grid.h fsg_vector.h
+#
+binomialStrategy.o: binomialStrategy.h
 
 
 clean:
