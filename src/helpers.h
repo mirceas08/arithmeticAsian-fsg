@@ -1,3 +1,6 @@
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include <armadillo>
 using namespace arma;
 
@@ -26,3 +29,6 @@ void interpolatePrices(const vec &av, const vec &optionPrice, const vec &F, vec 
         }
     }
 }
+
+
+#endif // HELPERS_H

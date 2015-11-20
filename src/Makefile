@@ -41,7 +41,7 @@ arithmeticAverage-fsg: $(OBJECTS)
 #
 # Dependencies
 #
-arithmeticAverage-fsg.o: helpers.h forward_shooting_grid.h
+arithmeticAverage-fsg.o: helpers.h forward_shooting_grid.h fsg_vector.h
 
 
 clean:

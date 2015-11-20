@@ -1,7 +1,5 @@
-#ifndef FORWARDSHOOTINGGRID_H
-#define FORWARDSHOOTINGGRID_H
-
 #include <math.h>
+#include <vector>
 #include <stdlib.h>
 #include <string>
 #include <fstream>
@@ -11,7 +9,7 @@
 #include <armadillo>
 using namespace arma;
 
-double forwardShootingGrid(std::string dataFile)
+double fsg_vector(std::string dataFile)
 {
     int i, j;
 
@@ -74,7 +72,7 @@ double forwardShootingGrid(std::string dataFile)
     double q = 1.0 - p;
 
     mat S(n+1, n+1);
-    field<vec> av(n+1, n+1);
+    std::vector<field<vec> > av;
     field<vec> optionPrice(n+1);
 
     /* ------------------------ Build binomial tree for S ------------------------ */
@@ -86,6 +84,8 @@ double forwardShootingGrid(std::string dataFile)
 
 	/* ------------------------ Shoot averages ------------------------ */
 	for (j = 0; j <= n; j++) {
+        field<vec> temp_field(j+1);
+
         for (i = 0; i <= j; i++) {
             double first_max = (1- pow(u, j - i + 1)) / (1-u);
             double second_max = pow(u, j-i) * d * (1 - pow(d, i)) / (1-d);
@@ -102,13 +102,14 @@ double forwardShootingGrid(std::string dataFile)
             for (int k = 0; k < numAverages; k++) {
                 temp(k) = a_min + k * spacing;
             }
-            av(i,j) = temp;
+            temp_field(i) = temp;
         }
+        av.push_back(temp_field);
 	}
 
 	/* ------------------------ Compute terminal payoffs ------------------------ */
 	for (i = 0; i <= n; i++) {
-        optionPrice(i) = max(av(i,n) - strike, zeroVec);
+        optionPrice(i) = max(av[n].at(i) - strike, zeroVec);
 	}
 
 	/* ------------------------ Backward recursion ------------------------ */
@@ -116,19 +117,19 @@ double forwardShootingGrid(std::string dataFile)
         for (i = 0; i <= j; i++) {
             vec currentS(numAverages);
             currentS.fill(S(i,j));
-            vec Au = ((j+1) * av(i,j) + u * currentS) / (j + 2);
-            vec Ad = ((j+1) * av(i,j) + d * currentS) / (j + 2);
+            vec Au = ((j+1) * av[j].at(i) + u * currentS) / (j + 2);
+            vec Ad = ((j+1) * av[j].at(i) + d * currentS) / (j + 2);
 
             vec interpOption_u(numAverages), interpOption_d(numAverages);
-            interpolatePrices(av(i,j+1), optionPrice(i), Au, interpOption_u);
-            interpolatePrices(av(i+1,j+1), optionPrice(i+1), Ad, interpOption_d);
+            interpolatePrices(av[j+1].at(i), optionPrice(i), Au, interpOption_u);
+            interpolatePrices(av[j+1].at(i+1), optionPrice(i+1), Ad, interpOption_d);
 
             if (optionStyle == "E") {
                 optionPrice(i) = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
             }
             else if (optionStyle == "A") {
                 vec continuationValue = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
-                vec exerciseValue = max(av(i,j) - strike, zeroVec);
+                vec exerciseValue = max(av[j].at(i) - strike, zeroVec);
                 optionPrice(i) = max(continuationValue, exerciseValue);
             }
             else {
@@ -139,8 +140,8 @@ double forwardShootingGrid(std::string dataFile)
         }
     }
 
+
     //return option price
     return optionPrice(0).at(0);
 }
 
-#endif // FORWARDSHOOTINGGRID_H
