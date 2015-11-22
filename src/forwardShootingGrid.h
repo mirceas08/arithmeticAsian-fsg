@@ -84,10 +84,9 @@ double forwardShootingGrid(std::string dataFile)
     else
         latticeStrategy = new CRR(sigma, r, dt); // default strategy
 
-
     double u = latticeStrategy->u;
     double d = latticeStrategy->d;
-    double p = (std::exp(latticeStrategy->r * latticeStrategy->dt) - d) / (u-d);
+    double p = latticeStrategy->p;
     double q = 1.0 - p;
 
     /* ------------------------ Initialize some values ------------------------ */
