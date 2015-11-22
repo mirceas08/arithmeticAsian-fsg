@@ -11,9 +11,9 @@
 #include <armadillo>
 using namespace arma;
 
-double fsg_vector(std::string dataFile)
+double forwardShootingGrid(std::string dataFile)
 {
-    int i, j;
+    int i, j; // counters
 
     /* ------------------------ Set starting values from file ------------------------ */
     int n;
@@ -23,13 +23,14 @@ double fsg_vector(std::string dataFile)
     double T;
     double sigma;
     int numAverages;
-    std::string treeStrategy;
     std::string putCall;
     std::string optionStyle;
+    std::string treeStrategy;
+    std::string interpolationType;
+    std::string spaceType;
 
     std::ifstream fIN(dataFile.c_str());
     std::string line;
-    //getline(fIN, line); // skip header
 
     while (std::getline(fIN, line)) {
         std::stringstream stream(line);
@@ -58,8 +59,10 @@ double fsg_vector(std::string dataFile)
             optionStyle = value;
         else if (variable == "treeStrategy")
             treeStrategy = value;
-//        else
-//            break;
+        else if (variable == "interpolationType")
+            interpolationType = value;
+        else if (variable == "spaceType")
+            spaceType = value;
     }
 
     transform(putCall.begin(), putCall.end(), putCall.begin(), ::toupper);
@@ -79,7 +82,7 @@ double fsg_vector(std::string dataFile)
 
     double u = latticeStrategy->u;
     double d = latticeStrategy->d;
-    double p = (std::exp(latticeStrategy->r * latticeStrategy->dt) - latticeStrategy->d) / (latticeStrategy->u - latticeStrategy->d);
+    double p = (std::exp(latticeStrategy->r * latticeStrategy->dt) - d) / (u-d);
     double q = 1.0 - p;
 
     /* ------------------------ Initialize some values ------------------------ */
@@ -111,13 +114,9 @@ double fsg_vector(std::string dataFile)
 
             double a_max = (S0 * first_max + S0 * second_max) / (j+1);
             double a_min = (S0 * first_min + S0 * second_min) / (j+1);
-            double diff = a_max - a_min;
-            double spacing = diff / (numAverages-1);
 
             vec temp(numAverages);
-            for (int k = 0; k < numAverages; k++) {
-                temp(k) = a_min + k * spacing;
-            }
+            spacedVector(a_min, a_max, temp, spaceType);
             temp_field(i) = temp;
         }
         av.push_back(temp_field);
@@ -141,8 +140,8 @@ double fsg_vector(std::string dataFile)
             vec Ad = ((j+1) * av[j].at(i) + d * currentS) / (j + 2);
 
             vec interpOption_u(numAverages), interpOption_d(numAverages);
-            interpolatePrices(av[j+1].at(i), optionPrice[i], Au, interpOption_u);
-            interpolatePrices(av[j+1].at(i+1), optionPrice[i+1], Ad, interpOption_d);
+            interpolate(av[j+1].at(i), optionPrice[i], Au, interpOption_u, interpolationType);
+            interpolate(av[j+1].at(i+1), optionPrice[i+1], Ad, interpOption_d, interpolationType);
 
             vec temp_optionPrice(numAverages);
             if (optionStyle == "E") {
@@ -163,8 +162,9 @@ double fsg_vector(std::string dataFile)
         optionPrice = optionPrice_temp;
     }
 
-    delete latticeStrategy; // delete from the heap
+    /* ------------------------ Clean from the heap and return ------------------------ */
 
-    return optionPrice[0].at(0); //return option price
+    delete latticeStrategy;
+    return optionPrice[0].at(0);
 }
 
