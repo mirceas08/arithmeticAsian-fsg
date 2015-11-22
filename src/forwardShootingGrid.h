@@ -119,9 +119,7 @@ double forwardShootingGrid(std::string dataFile)
             double a_max = (S0 * first_max + S0 * second_max) / (j+1);
             double a_min = (S0 * first_min + S0 * second_min) / (j+1);
 
-            vec temp(numAverages);
-            spacedVector(a_min, a_max, temp, spaceType);
-            temp_field(i) = temp;
+            temp_field(i) = spacedVector(a_min, a_max, numAverages, spaceType);
         }
         av.push_back(temp_field);
 	}
@@ -138,14 +136,14 @@ double forwardShootingGrid(std::string dataFile)
     }
 
 	/* ------------------------ Compute terminal payoffs ------------------------ */
-	vec temp_optionPrice(numAverages);
+	//vec temp_optionPrice(numAverages);
 //	for (i = 0; i <= n; i++) {
 //        temp_optionPrice = max(av[n].at(i) - strike, zeroVec);
 //        optionPrice.push_back(temp_optionPrice);
 //	}
 
    for (i = 0; i <= n; i++) {
-        temp_optionPrice = pathOption->payoff(av[n].at(i));
+        vec temp_optionPrice = pathOption->payoff(av[n].at(i));
         optionPrice.push_back(temp_optionPrice);
    }
 

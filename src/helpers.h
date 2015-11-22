@@ -60,34 +60,36 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
 
 // function to generate a vector with values (linearly or logarithmically spaced) within a range
 // logspace built-in function not available in Armadillo
-void spacedVector(const double &a, const double &b, vec &myVector, std::string spaceType)
+vec spacedVector(const double &a, const double &b, int N, std::string spaceType)
 {
-    int vec_size = myVector.size();
+    vec myVector(N);
 
     if (spaceType == "linspace") {
         double diff = b - a;
-        double spacing = diff / (vec_size-1);
+        double spacing = diff / (N-1);
 
-        for (int k = 0; k < vec_size; k++) {
+        for (int k = 0; k < N; k++) {
             myVector(k) = a + k * spacing;
         }
     }
     else if (spaceType == "logspace") {
         double logdiff = std::log(b) - std::log(a);
-        double logspacing = logdiff / (vec_size-1);
+        double logspacing = logdiff / (N-1);
 
-        for (int k = 0; k < vec_size; k++) {
+        for (int k = 0; k < N; k++) {
             myVector(k) = std::exp(std::log(a) + k * logspacing);
         }
     }
     else {
         double diff = b - a;
-        double spacing = diff / (vec_size-1);
+        double spacing = diff / (N-1);
 
-        for (int k = 0; k < vec_size; k++) {
+        for (int k = 0; k < N; k++) {
             myVector(k) = a + k * spacing;
         }
     }
+
+    return myVector;
 }
 
 
