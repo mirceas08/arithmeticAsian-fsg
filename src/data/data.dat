@@ -9,4 +9,6 @@ sigma 0.40
 putCall call
 optionStyle E
 -------------- optional parameters --------------
-treeStrategy JR
+treeStrategy CRR
+interpolationType linear
+spaceType linspace
