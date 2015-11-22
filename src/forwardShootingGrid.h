@@ -7,6 +7,7 @@
 
 #include "helpers.h"
 #include "binomialStrategy.h"
+#include "option.h"
 
 #include <armadillo>
 using namespace arma;
@@ -24,6 +25,7 @@ double forwardShootingGrid(std::string dataFile)
     double sigma;
     int numAverages;
     std::string putCall;
+    std::string optionType;
     std::string optionStyle;
     std::string treeStrategy;
     std::string interpolationType;
@@ -55,6 +57,8 @@ double forwardShootingGrid(std::string dataFile)
             sigma = atof(value.c_str());
         else if (variable == "putCall")
             putCall = value;
+        else if (variable == "optionType")
+            optionType = value;
         else if (variable == "optionStyle")
             optionStyle = value;
         else if (variable == "treeStrategy")
@@ -66,6 +70,7 @@ double forwardShootingGrid(std::string dataFile)
     }
 
     transform(putCall.begin(), putCall.end(), putCall.begin(), ::toupper);
+    transform(optionType.begin(), optionType.end(), optionType.begin(), ::toupper);
     transform(optionStyle.begin(), optionStyle.end(), optionStyle.begin(), ::toupper);
     double dt = T / static_cast<double>(n);
 
@@ -122,12 +127,28 @@ double forwardShootingGrid(std::string dataFile)
         av.push_back(temp_field);
 	}
 
+    /* ------------------------ Construct option object ------------------------ */
+    Option* pathOption;
+    if (putCall == "CALL")
+        pathOption = new AverageCallOption(strike);
+    else if (putCall == "PUT")
+        pathOption = new AveragePutOption(strike);
+    else {
+        cout << "!!! putCall parameter can be either call or put" << endl;
+        return -1;
+    }
+
 	/* ------------------------ Compute terminal payoffs ------------------------ */
 	vec temp_optionPrice(numAverages);
-	for (i = 0; i <= n; i++) {
-        temp_optionPrice = max(av[n].at(i) - strike, zeroVec);
+//	for (i = 0; i <= n; i++) {
+//        temp_optionPrice = max(av[n].at(i) - strike, zeroVec);
+//        optionPrice.push_back(temp_optionPrice);
+//	}
+
+   for (i = 0; i <= n; i++) {
+        temp_optionPrice = pathOption->payoff(av[n].at(i));
         optionPrice.push_back(temp_optionPrice);
-	}
+   }
 
 	/* ------------------------ Backward recursion ------------------------ */
     for (j = n-1; j >= 0; j--) {
@@ -149,11 +170,11 @@ double forwardShootingGrid(std::string dataFile)
             }
             else if (optionStyle == "A") {
                 vec continuationValue = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
-                vec exerciseValue = max(av[j].at(i) - strike, zeroVec);
+                vec exerciseValue = pathOption->payoff(av[j].at(i));
                 temp_optionPrice = max(continuationValue, exerciseValue);
             }
             else {
-                cout << "optionStyle can be either E (european) or A (american)" << endl;
+                cout << "!!! optionStyle parameter can be either E (european) or A (american)" << endl;
                 return -1;
             }
             optionPrice_temp.push_back(temp_optionPrice);
@@ -165,6 +186,7 @@ double forwardShootingGrid(std::string dataFile)
     /* ------------------------ Clean from the heap and return ------------------------ */
 
     delete latticeStrategy;
+    delete pathOption;
     return optionPrice[0].at(0);
 }
 

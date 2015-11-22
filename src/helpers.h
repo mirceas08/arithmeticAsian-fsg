@@ -59,6 +59,7 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
 }
 
 // function to generate a vector with values (linearly or logarithmically spaced) within a range
+// logspace built-in function not available in Armadillo
 void spacedVector(const double &a, const double &b, vec &myVector, std::string spaceType)
 {
     int vec_size = myVector.size();

@@ -7,6 +7,7 @@ r 0.10
 maturity 1
 sigma 0.40
 putCall call
+optionType average
 optionStyle E
 -------------- optional parameters --------------
 treeStrategy CRR
