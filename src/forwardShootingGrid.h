@@ -72,6 +72,7 @@ double forwardShootingGrid(std::string dataFile)
     transform(putCall.begin(), putCall.end(), putCall.begin(), ::toupper);
     transform(optionType.begin(), optionType.end(), optionType.begin(), ::toupper);
     transform(optionStyle.begin(), optionStyle.end(), optionStyle.begin(), ::toupper);
+    transform(treeStrategy.begin(), treeStrategy.end(), treeStrategy.begin(), ::toupper);
     double dt = T / static_cast<double>(n);
 
     /* ------------------------ Set tree parameters according to the lattice strategy ------------------------ */
@@ -81,6 +82,14 @@ double forwardShootingGrid(std::string dataFile)
         latticeStrategy = new CRR(sigma, r, dt);
     else if (treeStrategy == "JR")
         latticeStrategy = new JarrowRudd(sigma, r, dt);
+    else if (treeStrategy == "TIAN")
+        latticeStrategy = new Tian(sigma, r, dt);
+    else if (treeStrategy == "JR-RN")
+        latticeStrategy = new JarrowRudd_RN(sigma, r, dt);
+    else if (treeStrategy == "CRR-DRIFT")
+        latticeStrategy = new CRR_drift(sigma, r, dt, std::log(K/S0)/T);
+    else if (treeStrategy == "LR")
+        latticeStrategy = new LeisenReimer(sigma, r, dt, S0, K, T, n);
     else
         latticeStrategy = new CRR(sigma, r, dt); // default strategy
 
@@ -136,18 +145,12 @@ double forwardShootingGrid(std::string dataFile)
     }
 
 	/* ------------------------ Compute terminal payoffs ------------------------ */
-	//vec temp_optionPrice(numAverages);
-//	for (i = 0; i <= n; i++) {
-//        temp_optionPrice = max(av[n].at(i) - strike, zeroVec);
-//        optionPrice.push_back(temp_optionPrice);
-//	}
-
-   for (i = 0; i <= n; i++) {
+    for (i = 0; i <= n; i++) {
         vec temp_optionPrice = pathOption->payoff(av[n].at(i));
         optionPrice.push_back(temp_optionPrice);
-   }
+    }
 
-	/* ------------------------ Backward recursion ------------------------ */
+  	/* ------------------------ Backward recursion ------------------------ */
     for (j = n-1; j >= 0; j--) {
         std::vector<vec> optionPrice_temp;
 

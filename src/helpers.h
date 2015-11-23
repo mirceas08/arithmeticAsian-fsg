@@ -9,11 +9,9 @@ using namespace arma;
 void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string interpolationType)
 {
     int vecSize = YY.size();
+    int spot;
 
     if (interpolationType == "linear") {
-        int spot;
-        double diff;
-
         for (int k = 0; k < vecSize; k++) {
             uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
             spot = as_scalar(spotVec);
@@ -24,19 +22,25 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
             else if (spot == vecSize-1) {
                 YY(k) = Y(vecSize-1); // if value to interpolate is greater than the max of av take the floor
             }
-            else // otherwise do linear interpolation
-            {
-                diff = X(spot+1) - X(spot);
-
-                YY(k) = ( XX(k) - X(spot) ) * Y(spot+1) + ( X(spot+1) - XX(k) ) * Y(spot);
-                YY(k) /= diff;
+            else { // otherwise do linear interpolation
+                YY(k) = Y(spot) + ( Y(spot+1) - Y(spot) ) * ( XX(k) - X(spot) ) / ( X(spot+1) - X(spot) );
             }
         }
     }
-    else {
-        int spot;
-        double diff;
+    else if (interpolationType == "floor") {
+        for (int k = 0; k < vecSize; k++) {
+            uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
+            spot = as_scalar(spotVec);
 
+            if (spotVec.size() == 0) {
+                YY(k) = Y(0);  // if value to interpolate is lower than the min of av take the ceiling
+            }
+            else { // otherwise do linear interpolation
+                YY(k) = Y(spot);
+            }
+        }
+    }
+    else if (interpolationType == "ceil") {
         for (int k = 0; k < vecSize; k++) {
             uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
             spot = as_scalar(spotVec);
@@ -47,12 +51,52 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
             else if (spot == vecSize-1) {
                 YY(k) = Y(vecSize-1); // if value to interpolate is greater than the max of av take the floor
             }
-            else // otherwise do linear interpolation
-            {
-                diff = X(spot+1) - X(spot);
+            else { // otherwise do linear interpolation
+                YY(k) = Y(spot+1);
+            }
+        }
+    }
+//    else if (interpolationType == "quadratic") {
+//        for (int k = 0; k < vecSize; k++) {
+//            uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
+//            spot = as_scalar(spotVec);
+//            double b0, b1, b2;
+//
+//            if (spotVec.size() == 0) {
+//                YY(k) = Y(0);
+//            }
+//            else if (spot == vecSize-1) {
+//                YY(k) = Y(vecSize-1); // if value to interpolate is greater than the max of av take the floor
+//            }
+//            else if (spot == vecSize-2 && spot == vecSize-3) {
+//                b0 = Y(spot-1);
+//                b1 = ( Y(spot) - Y(spot-1) ) / ( X(spot) - X(spot-1) );
+//                b2 = ( ( Y(spot+1) - Y(spot) ) / ( X(spot+1) - X(spot) ) - ( Y(spot) - Y(spot-1) ) / ( X(spot) - X(spot-1) ) ) / ( X(spot+1) - X(spot-1) );
+//
+//                YY(k) = b0 + b1 * ( XX(k) - X(spot-1) ) + b2 * ( XX(k) - X(spot-1) ) * ( XX(k) - X(spot) );
+//            }
+//            else { // otherwise do quadratic interpolation
+//                b0 = Y(spot);
+//                b1 = ( Y(spot+1) - Y(spot) ) / ( X(spot+1) - X(spot) );
+//                b2 = ( ( Y(spot+2) - Y(spot+1) ) / ( X(spot+2) - X(spot+1) ) - ( Y(spot+1) - Y(spot) ) / ( X(spot+1) - X(spot) ) ) / ( X(spot+2) - X(spot) );
+//
+//                YY(k) = b0 + b1 * ( XX(k) - X(spot) ) + b2 * ( XX(k) - X(spot) ) * ( XX(k) - X(spot+1) );
+//            }
+//        }
+//    }
+    else { // linear interpolation as default
+        for (int k = 0; k < vecSize; k++) {
+            uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
+            spot = as_scalar(spotVec);
 
-                YY(k) = ( XX(k) - X(spot) ) * Y(spot+1) + ( X(spot+1) - XX(k) ) * Y(spot);
-                YY(k) /= diff;
+            if (spotVec.size() == 0) {
+                YY(k) = Y(0);  // if value to interpolate is lower than the min of av take the ceiling
+            }
+            else if (spot == vecSize-1) {
+                YY(k) = Y(vecSize-1); // if value to interpolate is greater than the max of av take the floor
+            }
+            else {  // otherwise do linear interpolation
+                YY(k) = Y(spot) + ( Y(spot+1) - Y(spot) ) * ( XX(k) - X(spot) ) / ( X(spot+1) - X(spot) );
             }
         }
     }
@@ -92,5 +136,25 @@ vec spacedVector(const double &a, const double &b, int N, std::string spaceType)
     return myVector;
 }
 
+// friend function for Leisen-Reimer class
+double h(double x, int n)
+{
+    double sign;
+    if (x > 0)
+        sign = 1.0;
+    else if (x < 0)
+        sign = -1.0;
+    else
+        sign = 0.0;
+
+    double argument;
+    double parenthesis;
+
+    //sqrt(0.25-0.25*exp(-((z/(n+1/3+0.1/(n+1))).^2)*(n+1/6))))
+
+    double term = (x / (n + 1/3 + 0.1 / (n+1)));
+    parenthesis = -1*(n + 1/6) * term * term;
+    return 0.5 + sign * std::sqrt(0.25 - 0.25 * std::exp(parenthesis));
+}
 
 #endif // HELPERS_H
