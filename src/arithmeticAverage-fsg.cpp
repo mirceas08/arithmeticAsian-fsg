@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 {
     std::string dataFile = "data/data.dat";
 
-    cout << "Option price: " << forwardShootingGrid(dataFile.c_str()) << std::endl;
+    cout << "Option price: " << forwardShootingGrid(dataFile) << std::endl;
     return 0;
 }
 
