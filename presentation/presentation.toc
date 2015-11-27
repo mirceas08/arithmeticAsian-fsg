@@ -1,5 +1,0 @@
-\beamer@endinputifotherversion {3.24pt}
-\beamer@sectionintoc {1}{Forward shooting grid for arithmetic average options}{3}{0}{1}
-\beamer@sectionintoc {2}{Numerical and financial remarks}{10}{0}{2}
-\beamer@sectionintoc {3}{Programming remarks}{11}{0}{3}
-\beamer@sectionintoc {4}{Numerical results}{13}{0}{4}
