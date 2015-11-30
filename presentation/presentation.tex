@@ -92,13 +92,15 @@
 \medskip
 \textit{Applied Numerical Finance assignment} % Your email address
 }
-\date{December 4, 2015} % Date, can be changed to a custom date
+\date{December 3, 2015} % Date, can be changed to a custom date
+
 
 \begin{document}
 
-\begin{frame}
+\begin{frame}[noframenumbering,plain]
 \titlepage % Print the title page as the first slide
 \end{frame}
+
 
 \begin{frame}
 \frametitle{Overview} % Table of contents slide, comment this block out to remove it
@@ -108,10 +110,25 @@
 %----------------------------------------------------------------------------------------
 %	PRESENTATION SLIDES
 %----------------------------------------------------------------------------------------
-\section{Arithmetic average options} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+\section{Average options} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
 %------------------------------------------------
 \begin{frame}
-\frametitle{Arithmetic average options}
+\frametitle{Average options}
+\begin{itemize}
+\item Asian options provide a cost-efficient way of hedging
+\item More attractive to some investors because less expensive and less volatile
+\item Payoff:
+\begin{align*}
+\text{Average call (fixed strike)} \rightarrow X(T) &= (S_{average}-K)^+ \\
+\text{Asian call (floating strike)} \rightarrow X(T) &= (S_T - S_{average})^+
+\end{align*}
+\item Standard form of averaging is arithmetic $\Rightarrow$ valuation is not trivial
+\begin{itemize}
+\item Arithmetic average has no simple analytic shape
+\item In classical binomial model the number of averages \\ grows exponentially with the size of the tree
+\end{itemize}
+\end{itemize}
+
 \end{frame}
 %------------------------------------------------
 \section{Forward shooting grid for arithmetic average options} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
@@ -120,19 +137,21 @@
 \frametitle{Forward shooting grid for arithmetic average options}
 \begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
-\column{.45\textwidth} % Left column and width
+\column{.30\textwidth} % Left column and width
 \textbf{Steps}
 \begin{enumerate}
 \item Build tree for S
 \end{enumerate}
 
-\column{.5\textwidth} % Right column and width
-
+\column{.60\textwidth} % Right column and width
+\begin{figure}
+	\includegraphics[scale=0.4]{lattice2.png}
+\end{figure}
 
 \end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[noframenumbering]
 \frametitle{Forward shooting grid for arithmetic average options}
 \begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
@@ -154,7 +173,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[noframenumbering]
 \frametitle{Forward shooting grid for arithmetic average options}
 \begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
@@ -179,36 +198,6 @@
 
 %------------------------------------------------
 
-\begin{frame}
-\frametitle{Backward recursion}
-\begin{figure}[T]
-	\includegraphics[scale=0.55]{backwardtree1}
-\end{figure}
-\end{frame}
-
-\begin{frame}
-\frametitle{Backward recursion}
-\begin{figure}[T]
-	\includegraphics[scale=0.55]{backwardtree2}
-\end{figure}
-\end{frame}
-
-\begin{frame}
-\frametitle{Backward recursion}
-\begin{figure}[T]
-	\includegraphics[scale=0.45]{backwardtree3}
-\end{figure}
-\end{frame}
-
-\begin{frame}
-\frametitle{Backward recursion}
-\begin{figure}[T]
-	\includegraphics[scale=0.40]{backwardtree4}
-\end{figure}
-\end{frame}
-
-%------------------------------------------------
-
 \section{Numerical and financial remarks}
 
 \begin{frame}
@@ -217,18 +206,18 @@
 
 \column{.45\textwidth} % Left column and width
 \textbf{Numerical POV}
-\begin{enumerate}
+\begin{itemize}
 \item How to space values in the average vector
-\item How to choose values in YY
+\item Interpolation type
 \item Number of time steps and dimension of the average vector
-\end{enumerate}
+\end{itemize}
 
 \column{.45\textwidth} % Left column and width
 \textbf{Financial POV}
-\begin{enumerate}
-\item Discretely sampled average
+\begin{itemize}
+\item What about discrete sampling?
 \item Greeks
-\end{enumerate}
+\end{itemize}
 
 \end{columns}
 \end{frame}
@@ -239,19 +228,21 @@
 \frametitle{Programming remarks}
 
 \begin{block}{Main issue}
-Data structure that will hold the lattices.
+Data structure that will store the lattices.
 \end{block}
 \vspace{10mm}
 \begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
-\column{.45\textwidth} % Left column and width
+\column{.60\textwidth} % Left column and width
 \textbf{Bad version}
 \begin{enumerate}
-\item Lattice for S held in a matrix
+\item Lattice for S held in a matrix of doubles
 \item Averages and option prices held in a field (matrix of vectors)
 \end{enumerate}
+\vspace{5mm}
+$\Rightarrow$ perfect recipe for memory bottlenecks
 
-\column{.45\textwidth} % Left column and width
+\column{.30\textwidth} % Left column and width
 \begin{figure}
 	\includegraphics[scale=0.8]{no}
 \end{figure}
@@ -264,22 +255,23 @@ Data structure that will hold the lattices.
 \frametitle{Programming remarks}
 
 \begin{block}{Main issue}
-Data structure that will hold the lattices.
+Data structure that will store the lattices.
 \end{block}
 \vspace{10mm}
 
 \begin{columns}[b] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
 
-\column{.45\textwidth} % Left column and width
+\column{.20\textwidth} % Left column and width
 \begin{figure}
-	\includegraphics[scale=0.15]{yes}
+	\includegraphics[scale=0.13]{yes}
 \end{figure}
 
-\column{.45\textwidth} % Left column and width
-\textbf{Good version}
+\column{.72\textwidth} % Left column and width
+\textbf{A better way to do it}
 \begin{enumerate}
 \item Lattice for S held in a sparse matrix
-\item Averages and option prices held in a C++ vector (STL dynamic container)
+\item Averages held in a C++ vector$<\text{data type}>$ (STL dynamic container)
+\item Option prices just a vector of vectors (for every timestep we only need data from the step ahead)
 \end{enumerate}
 
 \end{columns}
@@ -291,17 +283,25 @@ Data structure that will hold the lattices.
 
 \begin{frame}
 \frametitle{Numerical results}
+\begin{center}
+Arithmetic average option from Hull (page 613)\\
+$S_0=50, K = 50, r = 0.10, \sigma = 0.40, T = 1$ \\
+Analyitic approximation with continuous averaging: $5.62$
+\end{center}
+
 \begin{table}
-\begin{tabular}{l l l}
+\begin{tabular}{c c c}
 \toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
+\textbf{\# time steps} & \textbf{\# averages} & \textbf{Option price}\\
 \midrule
+Treatment 1 & 0.0003262 & 0.562 \\
+Treatment 2 & 0.0015681 & 0.910 \\
+Treatment 3 & 0.0009271 & 0.296 \\
 Treatment 1 & 0.0003262 & 0.562 \\
 Treatment 2 & 0.0015681 & 0.910 \\
 Treatment 3 & 0.0009271 & 0.296 \\
 \bottomrule
 \end{tabular}
-\caption{Table caption}
 \end{table}
 \end{frame}
 
@@ -315,125 +315,5 @@ Treatment 3 & 0.0009271 & 0.296 \\
 \end{frame}
 
 %------------------------------------------------
-
-\begin{frame}
-\frametitle{Blocks of Highlighted Text}
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
-
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
-
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
-\begin{enumerate}
-\item Statement
-\item Explanation
-\item Example
-\end{enumerate}
-
-\column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-
-\end{columns}
-\end{frame}
-
-%------------------------------------------------
-
-
-
-
-\begin{frame}
-\frametitle{Table}
-\begin{table}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\caption{Table caption}
-\end{table}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Verbatim}
-\begin{example}[Theorem Slide Code]
-\begin{verbatim}
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}\end{verbatim}
-\end{example}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Figure}
-Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{test}
-%\end{figure}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Citation}
-An example of the \verb|\cite| command to cite within the presentation:\\~
-
-This statement requires citation \cite{p1}.
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{References}
-\footnotesize{
-\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[Smith, 2012]{p1} John Smith (2012)
-\newblock Title of the publication
-\newblock \emph{Journal Name} 12(3), 45 -- 678.
-\end{thebibliography}
-}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\Huge{\centerline{The End}}
-\end{frame}
-
-%----------------------------------------------------------------------------------------
 
 \end{document} 

@@ -11,7 +11,7 @@ public:
     Option();
     virtual ~Option();
 
-    virtual vec payoff(const vec &S_average) = 0;
+    virtual vec payoff(const vec &S, const vec &strike) = 0;
 };
 
 // derived classes
@@ -21,23 +21,39 @@ public:
 class AverageCallOption: public Option
 {
 public:
-    vec K;
-public:
-    AverageCallOption(vec _K);
+    AverageCallOption();
     virtual ~AverageCallOption();
 
-    virtual vec payoff(const vec &S_average);
+    virtual vec payoff(const vec &S, const vec &strike);
 };
 
 class AveragePutOption: public Option
 {
 public:
-    vec K;
-public:
-    AveragePutOption(vec _K);
+    AveragePutOption();
     virtual ~AveragePutOption();
 
-    virtual vec payoff(const vec &S_average);
+    virtual vec payoff(const vec &S, const vec &strike);
+};
+
+/* ------------------------ Asian options ------------------------ */
+
+class AsianCallOption: public Option
+{
+public:
+    AsianCallOption();
+    virtual ~AsianCallOption();
+
+    virtual vec payoff(const vec &S, const vec &strike);
+};
+
+class AsianPutOption: public Option
+{
+public:
+    AsianPutOption();
+    virtual ~AsianPutOption();
+
+    virtual vec payoff(const vec &S, const vec &strike);
 };
 
 #endif // OPTION_H

@@ -11,28 +11,52 @@ Option::~Option() {}
 
 /* ------------------------ Average call option ------------------------ */
 
-AverageCallOption::AverageCallOption(vec _K):
-    K(_K) {}
+AverageCallOption::AverageCallOption() {}
 
 AverageCallOption::~AverageCallOption() {}
 
-vec AverageCallOption::payoff(const vec &S_average)
+vec AverageCallOption::payoff(const vec &S, const vec &strike)
 {
-    int vec_size = S_average.size();
-    return max(S_average - K, zeros<vec>(vec_size));
+    int vec_size = S.size();
+    return max(S - strike, zeros<vec>(vec_size));
 }
 
 /* ------------------------ Average put option ------------------------ */
 
-AveragePutOption::AveragePutOption(vec _K):
-    K(_K) {}
+AveragePutOption::AveragePutOption() {}
 
 AveragePutOption::~AveragePutOption() {}
 
-vec AveragePutOption::payoff(const vec &S_average)
+vec AveragePutOption::payoff(const vec &S, const vec &strike)
 {
-    int vec_size = S_average.size();
-    return max(K - S_average, zeros<vec>(vec_size));
+    int vec_size = S.size();
+    return max(strike - S, zeros<vec>(vec_size));
+}
+
+/* ####################################################################### */
+
+/* ------------------------ Asian call option ------------------------ */
+
+AsianCallOption::AsianCallOption() {}
+
+AsianCallOption::~AsianCallOption() {}
+
+vec AsianCallOption::payoff(const vec &S, const vec &strike)
+{
+    int vec_size = S.size();
+    return max(S - strike, zeros<vec>(vec_size));
+}
+
+/* ------------------------ Average put option ------------------------ */
+
+AsianPutOption::AsianPutOption() {}
+
+AsianPutOption::~AsianPutOption() {}
+
+vec AsianPutOption::payoff(const vec &S, const vec &strike)
+{
+    int vec_size = S.size();
+    return max(strike - S, zeros<vec>(vec_size));
 }
 
 #endif // OPTION_CPP

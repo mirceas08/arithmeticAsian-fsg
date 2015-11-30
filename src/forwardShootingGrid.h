@@ -135,10 +135,26 @@ double forwardShootingGrid(std::string dataFile)
 
     /* ------------------------ Construct option object ------------------------ */
     Option* pathOption;
-    if (putCall == "CALL")
-        pathOption = new AverageCallOption(strike);
-    else if (putCall == "PUT")
-        pathOption = new AveragePutOption(strike);
+    if (putCall == "CALL") {
+        if (optionType == "AVERAGE")
+            pathOption = new AverageCallOption();
+        else if (optionType == "ASIAN")
+            pathOption = new AsianCallOption();
+        else {
+            cout << "!!! optionType can be either average or asian" << endl;
+            return -1;
+        }
+    }
+    else if (putCall == "PUT") {
+        if (optionType == "AVERAGE")
+            pathOption = new AveragePutOption();
+        else if (optionType == "ASIAN")
+            pathOption = new AsianPutOption();
+        else {
+            cout << "!!! optionType can be either average or asian" << endl;
+            return -1;
+        }
+    }
     else {
         cout << "!!! putCall parameter can be either call or put" << endl;
         return -1;
@@ -146,7 +162,20 @@ double forwardShootingGrid(std::string dataFile)
 
 	/* ------------------------ Compute terminal payoffs ------------------------ */
     for (i = 0; i <= n; i++) {
-        vec temp_optionPrice = pathOption->payoff(av[n].at(i));
+        vec temp_optionPrice;
+
+        if (optionType == "AVERAGE")
+            temp_optionPrice = pathOption->payoff(av[n].at(i), strike);
+        else if (optionType == "ASIAN") {
+            vec finalS(numAverages);
+            finalS.fill(S(i,n));
+            temp_optionPrice = pathOption->payoff(finalS, av[n].at(i));
+        }
+        else {
+            cout << "!!! optionType can be either average or asian" << endl;
+            return -1;
+        }
+
         optionPrice.push_back(temp_optionPrice);
     }
 
@@ -170,7 +199,20 @@ double forwardShootingGrid(std::string dataFile)
             }
             else if (optionStyle == "A") {
                 vec continuationValue = std::exp(-r*dt) * ( p * interpOption_u + q * interpOption_d );
-                vec exerciseValue = pathOption->payoff(av[j].at(i));
+
+                vec exerciseValue;
+                if (optionType == "AVERAGE")
+                    exerciseValue = pathOption->payoff(av[j].at(i), strike);
+                else if (optionType == "ASIAN") {
+                    vec finalS(numAverages);
+                    finalS.fill(S(i,j));
+                    exerciseValue = pathOption->payoff(finalS, av[j].at(i));
+                }
+                else {
+                    cout << "!!! optionType can be either average or asian" << endl;
+                    return -1;
+                }
+
                 temp_optionPrice = max(continuationValue, exerciseValue);
             }
             else {
