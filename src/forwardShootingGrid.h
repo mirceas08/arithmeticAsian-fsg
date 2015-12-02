@@ -189,7 +189,8 @@ double forwardShootingGrid(std::string dataFile)
             vec Au = ((j+1) * av[j].at(i) + u * currentS) / (j + 2);
             vec Ad = ((j+1) * av[j].at(i) + d * currentS) / (j + 2);
 
-            vec interpOption_u(numAverages), interpOption_d(numAverages);
+            vec interpOption_u(numAverages);
+            vec interpOption_d(numAverages);
             interpolate(av[j+1].at(i), optionPrice[i], Au, interpOption_u, interpolationType);
             interpolate(av[j+1].at(i+1), optionPrice[i+1], Ad, interpOption_d, interpolationType);
 
@@ -229,6 +230,9 @@ double forwardShootingGrid(std::string dataFile)
 
     delete latticeStrategy;
     delete pathOption;
+    latticeStrategy = NULL;
+    pathOption = NULL;
+
     return optionPrice[0].at(0);
 }
 
