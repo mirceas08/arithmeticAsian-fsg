@@ -5,6 +5,8 @@
 #include <math.h>
 #include <algorithm>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include "forwardShootingGrid.h"
 #include "binomialStrategy.h"
 #include "option.h"
@@ -17,10 +19,10 @@ int main(int argc, char** argv)
     wall_clock timer;
     timer.tic();
 
-    std::string dataFile = "data/data.dat";
+    std::string dataFile = argv[1]; // get data file from command line
+    cout << "Option price: " << fsg(dataFile) << std::endl; // output option price
 
-    cout << "Option price: " << forwardShootingGrid(dataFile) << std::endl;
-
+    // timer
     double timeElapsed = timer.toc();
     cout << "Time elapsed: " << timeElapsed << std::endl;
 

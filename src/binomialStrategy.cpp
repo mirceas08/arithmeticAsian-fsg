@@ -4,7 +4,9 @@
 #include "binomialStrategy.h"
 #include <cmath>
 
+/* ------------------------------------------------------------ */
 /* ------------------------ Base class ------------------------ */
+/* ------------------------------------------------------------ */
 
 BinomialStrategy::BinomialStrategy(double _sigma, double _r, double _dt)
 {
@@ -14,6 +16,10 @@ BinomialStrategy::BinomialStrategy(double _sigma, double _r, double _dt)
 }
 
 BinomialStrategy::~BinomialStrategy() {}
+
+/* ----------------------------------------------------------------- */
+/* ------------------------ Derived classes ------------------------ */
+/* ----------------------------------------------------------------- */
 
 
 /* ------------------------ Cox-Ross-Rubinstein  ------------------------ */

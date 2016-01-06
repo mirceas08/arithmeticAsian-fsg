@@ -1,6 +1,6 @@
-###############################################
-## Make file for Heston model discretization ##
-###############################################
+#########################################
+## Make file for arithmeticAverage-fsg ##
+#########################################
 
 
 ##### Insert here location of headers and libraries
@@ -11,7 +11,7 @@ ARMADILLO_INC	= /media/mircea/Stuff/Mircea/Programming/C++/libraries/armadillo-6
 
 # libraries
 OPENBLAS_LIB 	= /usr/lib/openblas/lib
-LAPACK_LIB		= /usr/lib/lapack
+#LAPACK_LIB		= /usr/lib/lapack
 
 ###################################################
 ###################################################
@@ -22,7 +22,7 @@ PROG            = arithmeticAverage-fsg
 OBJECTS			= arithmeticAverage-fsg.o binomialStrategy.o option.o
 FILES			= 
 INCLUDES        = -I $(ARMADILLO_INC)
-LIBS            = -L $(OPENBLAS_LIB) -lopenblas -L $(LAPACK_LIB) -llapack
+LIBS            = -L $(OPENBLAS_LIB) -lopenblas
 CFLAGS        	= -O3 -std=c++11 -fopenmp -march=native $(DEBUG)
 
 arithmeticAverage-fsg: $(OBJECTS)
@@ -41,7 +41,7 @@ arithmeticAverage-fsg: $(OBJECTS)
 #
 # Dependencies
 #
-arithmeticAverage-fsg.o: helpers.h forwardShootingGrid.h binomialStrategy.h option.h approximationFormula.h
+arithmeticAverage-fsg.o: helpers.h forwardShootingGrid.h binomialStrategy.h option.h
 #
 binomialStrategy.o: binomialStrategy.h
 #

@@ -27,6 +27,7 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
             }
         }
     }
+    // performs badly
     else if (interpolationType == "floor") {
         for (int k = 0; k < vecSize; k++) {
             uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
@@ -40,6 +41,7 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
             }
         }
     }
+    // performs badly
     else if (interpolationType == "ceil") {
         for (int k = 0; k < vecSize; k++) {
             uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
@@ -56,6 +58,10 @@ void interpolate(const vec &X, const vec &Y, const vec &XX, vec &YY, std::string
             }
         }
     }
+    /*
+    the version for quadratic interpolation is commented out because it is buggy along the edges of the tree
+    linear interpolation performs well anyway
+    */
 //    else if (interpolationType == "quadratic") {
 //        for (int k = 0; k < vecSize; k++) {
 //            uvec spotVec = find(X <= XX(k), 1, "last"); // find lower index
@@ -150,8 +156,6 @@ double h(double x, int n)
     double argument;
     double parenthesis;
 
-    //sqrt(0.25-0.25*exp(-((z/(n+1/3+0.1/(n+1))).^2)*(n+1/6))))
-
     double term = (x / (n + 1/3 + 0.1 / (n+1)));
     parenthesis = -1*(n + 1/6) * term * term;
     return 0.5 + sign * std::sqrt(0.25 - 0.25 * std::exp(parenthesis));
@@ -175,7 +179,6 @@ double normalCDF(double x)
         sign = -1;
     x = fabs(x)/sqrt(2.0);
 
-    // A&S formula 7.1.26
     double t = 1.0/(1.0 + p*x);
     double y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*exp(-x*x);
 
