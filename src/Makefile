@@ -18,8 +18,8 @@ OPENBLAS_LIB 	= /usr/lib/openblas/lib
 
 CC				= g++
 DEBUG			= -DARMA_NO_DEBUG -DNDEBUG
-PROG            = arithmeticAverage-fsg
-OBJECTS			= arithmeticAverage-fsg.o binomialStrategy.o option.o
+PROG            = fsg
+OBJECTS			= main.o binomialStrategy.o option.o
 FILES			= 
 INCLUDES        = -I $(ARMADILLO_INC)
 LIBS            = -L $(OPENBLAS_LIB) -lopenblas
@@ -41,7 +41,7 @@ arithmeticAverage-fsg: $(OBJECTS)
 #
 # Dependencies
 #
-arithmeticAverage-fsg.o: helpers.h forwardShootingGrid.h binomialStrategy.h option.h
+arithmeticAverage-fsg.o: helpers.h fsg_average.h binomialStrategy.h option.h
 #
 binomialStrategy.o: binomialStrategy.h
 #
@@ -49,4 +49,4 @@ option.o: option.h
 
 
 clean:
-	\rm *.o *~ arithmeticAverage-fsg
+	\rm *.o *~ fsg

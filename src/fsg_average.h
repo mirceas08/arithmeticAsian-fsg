@@ -15,7 +15,7 @@
 #include <armadillo>
 using namespace arma;
 
-double fsg(std::string dataFile)
+double fsg_average(std::string dataFile)
 {
     int i, j; // counters
 

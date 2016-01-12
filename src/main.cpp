@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include "forwardShootingGrid.h"
+#include "fsg_average.h"
 #include "binomialStrategy.h"
 #include "option.h"
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     timer.tic();
 
     std::string dataFile = argv[1]; // get data file from command line
-    cout << "Option price: " << fsg(dataFile) << std::endl; // output option price
+    cout << "Option price: " << fsg_average(dataFile) << std::endl; // output option price
 
     // timer
     double timeElapsed = timer.toc();
