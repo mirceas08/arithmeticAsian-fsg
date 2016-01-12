@@ -1,7 +1,7 @@
 -------------- required parameters --------------
-nsteps 400
+nsteps 100
 fixedAverages no
-alpha 10
+alpha 4
 spot 50
 strike 50
 r 0.10
